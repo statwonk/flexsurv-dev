@@ -617,7 +617,7 @@ summary.flexsurvreg <- function(object, newdata=NULL, X=NULL, type="survival", f
     dat <- x$data
     Xraw <- model.frame(x)[,-1,drop=FALSE]
     isfac <- sapply(Xraw,is.factor)
-    type <- match.arg(type, c("survival","cumhaz","hazard"))
+    type <- match.arg(type, c("survival", "event", "cumhaz", "hazard"))
     if (is.null(newdata)){
         if (is.vector(X)) X <- matrix(X, nrow=1)
         if (x$ncovs > 0 && is.null(X)) {
