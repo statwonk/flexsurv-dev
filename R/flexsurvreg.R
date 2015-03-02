@@ -199,7 +199,7 @@ minusloglik.flexsurv <- function(optpars, Y, X=0, weights, bhazard, dlist, inits
     pcall$q <- Y[,"time1"]
     pmaxcall$q <- Y[,"time2"] # Inf if right-censored, giving pmax=1
     dcall$x <- Y[,"time1"]
-    tcall$q <- Y[,"start"]  
+    tcall$q <- Y[,"start"]
     dcall$log <- TRUE
     ## Generic survival model likelihood
     dead <- Y[,"status"]==1
@@ -208,7 +208,7 @@ minusloglik.flexsurv <- function(optpars, Y, X=0, weights, bhazard, dlist, inits
     pmax[pmaxcall$q==Inf] <- 1  # in case user-defined function doesn't already do this
     pmin <- (do.call(dfns$p, pcall))
     pobs <- 1 - do.call(dfns$p, tcall) # prob of being observed = 1 unless left-truncated
-    
+
     ## Hazard offset for relative survival models
     if (any(bhazard>0)){
         loghaz <- logdens - log(pmax - pmin)
@@ -307,7 +307,7 @@ concat.formulae <- function(formula,forms){
     attr(f2, "covnames") <- covnames.bare
     f2
 }
-        
+
 ## User-supplied initial value functions don't have to include all
 ## four possible arguments: this expands them if they don't
 
@@ -389,7 +389,7 @@ flexsurvreg <- function(formula, anc=NULL, data, weights, bhazard, subset, na.ac
     }
     forms <- c(location=get.locform(formula, ancnames), anc)
     names(forms)[[1]] <- dlist$location
-    
+
     ## a) calling model.frame() directly doesn't work.  it only looks in
     ## "data" or the environment of "formula" for extra variables like
     ## "weights". needs to also look in environment of flexsurvreg.
@@ -398,7 +398,7 @@ flexsurvreg <- function(formula, anc=NULL, data, weights, bhazard, subset, na.ac
     ## flexsurvreg within a function
     ## m <- make.model.frame(call, formula, data, weights, subset, na.action, ancnames)
 
-    ## Make model frame   
+    ## Make model frame
     indx <- match(c("formula", "data", "weights", "bhazard", "subset", "na.action"), names(call), nomatch = 0)
     if (indx[1] == 0)
         stop("A \"formula\" argument is required")
@@ -418,7 +418,7 @@ flexsurvreg <- function(formula, anc=NULL, data, weights, bhazard, subset, na.ac
         mx[[i]] <- length(unlist(mx)) + seq_len(ncol(mml[[i]][,-1,drop=FALSE]))
     }
     X <- compress.model.matrices(mml)
-    
+
     weights <- model.extract(m, "weights")
     if (is.null(weights)) weights <- rep(1, nrow(X))
     bhazard <- model.extract(m, "bhazard")
@@ -526,7 +526,7 @@ flexsurvreg <- function(formula, anc=NULL, data, weights, bhazard, subset, na.ac
         }
         ret <- list(res=res, res.t=res.t, cov=cov, coefficients=res.t[,"est"],
                     npars=length(est), fixedpars=fixedpars, optpars=setdiff(1:npars, fixedpars),
-                    mx=mx, ncovs=ncovs, ncoveffs=ncoveffs, basepars=1:nbpars, 
+                    mx=mx, ncovs=ncovs, ncoveffs=ncoveffs, basepars=1:nbpars,
                     covpars=if (ncoveffs>0) (nbpars+1):npars else NULL,
                     loglik=-opt$value, cl=cl, opt=opt)
     }
@@ -534,7 +534,7 @@ flexsurvreg <- function(formula, anc=NULL, data, weights, bhazard, subset, na.ac
                   AIC=-2*ret$loglik + 2*ret$npars,
                   data = dat, datameans = colMeans(X),
                   N=nrow(dat$Y), events=sum(dat$Y[,"status"]==1), trisk=sum(dat$Y[,"time"]),
-                  concat.formula=f2, all.formulae=forms, dfns=dfns),             
+                  concat.formula=f2, all.formulae=forms, dfns=dfns),
              ret)
     if (isTRUE(getOption("flexsurv.test.analytic.derivatives"))
         && (dfns$deriv) ) {
@@ -544,7 +544,7 @@ flexsurvreg <- function(formula, anc=NULL, data, weights, bhazard, subset, na.ac
     class(ret) <- "flexsurvreg"
     ret
 }
-    
+
 print.flexsurvreg <- function(x, ...)
 {
     covmeans <- colMeans(model.matrix(x))
@@ -609,7 +609,7 @@ form.model.matrix <- function(object, newdata){
     X
 }
 
-summary.flexsurvreg <- function(object, newdata=NULL, X=NULL, type="survival", fn=NULL, 
+summary.flexsurvreg <- function(object, newdata=NULL, X=NULL, type="survival", fn=NULL,
                                 t=NULL, start=0, ci=TRUE, B=1000, cl=0.95,
                                 ...)
 {
@@ -703,7 +703,7 @@ summary.fns <- function(x, type){
            "cumhaz" = function(t,start,...) {
                ret <- x$dfns$H(t,...) - x$dfns$H(start,...)
                ret[t<start] <- 0
-               ret                         
+               ret
            })
 }
 
@@ -715,7 +715,7 @@ print.summary.flexsurvreg <- function(x, ...){
     }
 }
 
-add.covs <- function(x, pars, beta, X, transform=FALSE){  ## TODO option to transform on input 
+add.covs <- function(x, pars, beta, X, transform=FALSE){  ## TODO option to transform on input
     nres <- nrow(X)
     if (!is.matrix(pars)) pars <- matrix(pars, nrow=nres, ncol=length(pars), byrow=TRUE)
     if (!is.matrix(beta)) beta <- matrix(beta, nrow=1)
@@ -724,7 +724,7 @@ add.covs <- function(x, pars, beta, X, transform=FALSE){  ## TODO option to tran
         if (length(covinds) > 0){
             pars[,j] <- pars[,j] + beta[,covinds] %*% t(X[,covinds,drop=FALSE])
         }
-        if (!transform)            
+        if (!transform)
             pars[,j] <- x$dlist$inv.transforms[[j]](pars[,j])
     }
     colnames(pars) <- x$dlist$pars
@@ -831,6 +831,9 @@ plot.flexsurvreg <- function(x, newdata=NULL, X=NULL, type="survival", fn=NULL, 
         if (type=="survival") {
             plot(survfit(form, data=mm), col=col.obs, lty=lty.obs, lwd=lwd.obs, ...)
         }
+        else if (type == "event") {
+          plot(survfit(form, data=mm), fun = "event", col=col.obs, lty=lty.obs, lwd=lwd.obs, ...)
+        }
         else if (type=="cumhaz") {
             plot(survfit(form, data=mm), fun="cumhaz", col=col.obs, lty=lty.obs, lwd=lwd.obs, ...)
         }
@@ -864,6 +867,11 @@ plot.flexsurvreg <- function(x, newdata=NULL, X=NULL, type="survival", fn=NULL, 
     }
     col <- rep(col, length=nrow(X)); lty=rep(lty, length=nrow(X)); lwd=rep(lwd, length=nrow(X))
     col.ci <- rep(col.ci, length=nrow(X)); lty.ci=rep(lty.ci, length=nrow(X)); lwd.ci=rep(lwd.ci, length=nrow(X))
+    if(type == "event") {
+      summ$est <- 1 - summ$est
+      summ$lcl <- 1 - summ$lcl
+      summ$ucl <- 1 - summ$ucl
+    }
     for (i in 1:nrow(X)) {
         if (est) lines(summ[[i]]$time, summ[[i]]$est, col=col[i], lty=lty[i], lwd=lwd[i])
         if (ci) {
